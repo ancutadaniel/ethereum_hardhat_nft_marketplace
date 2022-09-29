@@ -19,11 +19,11 @@ async function main() {
   console.log('MARKETPLACE contract address', marketplace.address);
 
   // Save copies of each contracts abi and address to the frontend.
-  saveFrontendFiles(marketplace, 'Marketplace');
-  saveFrontendFiles(nft, 'NFT');
+  saveFrontendFiles(marketplace, 'Marketplace', 'MARK');
+  saveFrontendFiles(nft, 'NFT', await nft.symbol());
 }
 
-function saveFrontendFiles(contract, name) {
+const saveFrontendFiles = (contract, name, symbol) => {
   const fs = require('fs');
   const contractsDir = __dirname + '/../../frontend/contractsData';
 
@@ -33,16 +33,16 @@ function saveFrontendFiles(contract, name) {
 
   fs.writeFileSync(
     contractsDir + `/${name}-address.json`,
-    JSON.stringify({ address: contract.address }, undefined, 2)
+    JSON.stringify({ address: contract.address, symbols: symbol }, undefined, 2)
   );
 
   const contractArtifact = artifacts.readArtifactSync(name);
 
   fs.writeFileSync(
-    contractsDir + `/${name}.json`,
+    contractsDir + `/${name}_${symbol}.json`,
     JSON.stringify(contractArtifact, null, 2)
   );
-}
+};
 
 main()
   .then(() => process.exit(0))

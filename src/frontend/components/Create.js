@@ -1,9 +1,8 @@
 import { useState } from 'react';
 import { ethers } from 'ethers';
 import { Row, Form, Button } from 'react-bootstrap';
-import { create as ipfsHttpClient } from 'ipfs-http-client';
-
-const client = ipfsHttpClient('https://ipfs.infura.io:5001/api/v0');
+import { create } from 'ipfs-http-client';
+import { Buffer } from 'buffer';
 
 const Create = ({ marketplace, nft }) => {
   const [image, setImage] = useState('');
@@ -11,25 +10,44 @@ const Create = ({ marketplace, nft }) => {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
 
+  const INFURA_ID = process.env.REACT_APP_INFURA_ID;
+  const INFURA_SECRET_KEY = process.env.REACT_APP_INFURA_SECRET_KEY;
+  const auth =
+    'Basic ' +
+    Buffer.from(INFURA_ID + ':' + INFURA_SECRET_KEY).toString('base64');
+
+  const URL = `https://dropbox.infura-ipfs.io/ipfs/`;
+
+  // connect to Infura IPFS API address
+  const ipfs = create({
+    host: 'ipfs.infura.io',
+    port: '5001',
+    protocol: 'https',
+    headers: {
+      authorization: auth,
+    },
+  });
+
   const uploadToIPFS = async (event) => {
     event.preventDefault();
     const file = event.target.files[0];
 
     if (typeof file !== 'undefined') {
       try {
-        const result = await client.add(file);
-        setImage(`https://ipfs.infura.io/ipfs/${result.path}`);
+        const result = await ipfs.add(file);
+        setImage(`${URL}${result.path}`);
       } catch (error) {
         console.log('ipfs image upload error: ', error);
       }
     }
   };
+
   const createNFT = async () => {
     if (!image || !price || !name || !description) return;
 
     try {
       // upload NFT metadata to ipfs
-      const result = await client.add(
+      const result = await ipfs.add(
         JSON.stringify({ image, price, name, description })
       );
 
@@ -40,7 +58,7 @@ const Create = ({ marketplace, nft }) => {
   };
 
   const mintThenList = async (result) => {
-    const uri = `https://ipfs.infura.io/ipfs/${result.path}`;
+    const uri = `${URL}${result.path}`;
     // mint nft
     await (await nft.mint(uri)).wait();
     // get tokenId of new nft
@@ -66,6 +84,7 @@ const Create = ({ marketplace, nft }) => {
                 type='file'
                 required
                 name='file'
+                accept='.jpg, .jpeg, .png, .bmp, .gif'
                 onChange={uploadToIPFS}
               />
               <Form.Control

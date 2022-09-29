@@ -1,5 +1,5 @@
 {
-  "name": "hardhat_ethers_nft",
+  "name": "hardhat_ethers_nft_marketplace",
   "version": "0.2.0",
   "private": false,
   "dependencies": {
@@ -23,7 +23,7 @@
     "react-dom": "^17.0.2",
     "react-router": "^6.2.1",
     "react-router-dom": "^6.2.1",
-    "react-scripts": "5.0.0",
+    "react-scripts": "5.0.1",
     "web-vitals": "^2.1.4"
   },
   "scripts": {
@@ -52,5 +52,10 @@
   },
   "devDependencies": {
     "@babel/preset-env": "^7.16.11"
+  },
+  "engines": {
+    "node": "16.15.0",
+    "npm": "8.11.0",
+    "yarn": "1.22.19"
   }
 }
